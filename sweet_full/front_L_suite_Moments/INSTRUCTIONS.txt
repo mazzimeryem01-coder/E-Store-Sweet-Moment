@@ -1,0 +1,13 @@
+Sweet Moment — projet sur le Bureau (sweet-full-cursor)
+========================================================
+
+1. Dans VS Code : Fichier > Ouvrir le dossier > choisir :
+   C:\Users\PC\Desktop\sweet-full-cursor
+
+2. Terminal (Ctrl + `) :
+   npm install
+   npm run dev
+
+3. Ouvrir http://localhost:5173 (ou l’URL affichée).
+
+Sans backend : connexion / inscription passent en mode local si l’API ne répond pas.

@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply font-sans text-brand-ink antialiased bg-white;
+}
+
+[data-aos] {
+  pointer-events: auto;
+}

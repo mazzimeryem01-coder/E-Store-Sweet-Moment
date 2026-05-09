@@ -1,0 +1,187 @@
+import React, { useMemo, useState } from 'react';
+import { Link, Navigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '../context/AuthContext.jsx';
+import { useToast } from '../context/ToastContext.jsx';
+
+function strength(pw) {
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  if (score <= 1) return { label: 'Faible', cls: 'bg-red-100 text-red-700' };
+  if (score === 2) return { label: 'Moyen', cls: 'bg-amber-100 text-amber-800' };
+  return { label: 'Fort', cls: 'bg-emerald-100 text-emerald-800' };
+}
+
+export default function RegisterPage() {
+  const { register, isAuthenticated } = useAuth();
+  const { show } = useToast();
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [city, setCity] = useState('');
+  const [phone, setPhone] = useState('');
+  const [showPw, setShowPw] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const pwStrength = useMemo(() => strength(password), [password]);
+
+  if (isAuthenticated) return <Navigate to="/" replace />;
+
+  const validate = () => {
+    const e = {};
+    if (firstName.trim().length < 2) e.firstName = 'Prénom requis (2 caractères min.)';
+    if (lastName.trim().length < 2) e.lastName = 'Nom requis (2 caractères min.)';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = 'Email invalide.';
+    if (password.length < 8) e.password = 'Minimum 8 caractères.';
+    if (password !== confirm) e.confirm = 'Les mots de passe ne correspondent pas.';
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const submit = async () => {
+    if (!validate()) return;
+    setLoading(true);
+    try {
+      await register({ firstName, lastName, email, password, city, phone });
+      show('Compte créé avec succès', 'success');
+    } catch (err) {
+      show(
+        err.response?.data?.message || 'Inscription impossible: verifier que le backend tourne sur localhost:8080',
+        'error'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-[calc(100vh-140px)] flex items-center justify-center px-4 py-12 bg-brand-cream/40">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-[420px] bg-white rounded-2xl shadow-card border border-[#F0F0F0] p-8"
+      >
+        <div className="text-center mb-6">
+          <h1 className="font-display text-2xl font-bold text-brand-ink">Créer un compte</h1>
+          <p className="text-sm text-brand-ink/55">Rejoignez Sweet Moment</p>
+        </div>
+
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-brand-ink/60">Prénom</label>
+              <input
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-[#F0F0F0] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-rose/30"
+              />
+              {errors.firstName && (
+                <p className="text-[11px] text-red-600 mt-1">{errors.firstName}</p>
+              )}
+            </div>
+            <div>
+              <label className="text-xs text-brand-ink/60">Nom</label>
+              <input
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-[#F0F0F0] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-rose/30"
+              />
+              {errors.lastName && (
+                <p className="text-[11px] text-red-600 mt-1">{errors.lastName}</p>
+              )}
+            </div>
+          </div>
+          <div>
+            <label className="text-xs text-brand-ink/60">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-[#F0F0F0] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-rose/30"
+            />
+            {errors.email && <p className="text-[11px] text-red-600 mt-1">{errors.email}</p>}
+          </div>
+          <div>
+            <label className="text-xs text-brand-ink/60">Mot de passe</label>
+            <div className="relative mt-1">
+              <input
+                type={showPw ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-xl border border-[#F0F0F0] px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-brand-rose/30"
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-brand-ink/40"
+                onClick={() => setShowPw((v) => !v)}
+              >
+                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+            {password && (
+              <span className={`inline-block mt-1 text-[11px] px-2 py-0.5 rounded-full ${pwStrength.cls}`}>
+                {pwStrength.label}
+              </span>
+            )}
+            {errors.password && (
+              <p className="text-[11px] text-red-600 mt-1">{errors.password}</p>
+            )}
+          </div>
+          <div>
+            <label className="text-xs text-brand-ink/60">Confirmer le mot de passe</label>
+            <input
+              type="password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-[#F0F0F0] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-rose/30"
+            />
+            {errors.confirm && (
+              <p className="text-[11px] text-red-600 mt-1">{errors.confirm}</p>
+            )}
+          </div>
+          <div>
+            <label className="text-xs text-brand-ink/60">Ville (optionnel)</label>
+            <input
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-[#F0F0F0] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-rose/30"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-brand-ink/60">Téléphone (optionnel)</label>
+            <input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-[#F0F0F0] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-rose/30"
+            />
+          </div>
+        </div>
+
+        <motion.button
+          type="button"
+          whileHover={{ scale: 1.03 }}
+          transition={{ duration: 0.2 }}
+          disabled={loading}
+          onClick={submit}
+          className="mt-6 w-full py-3 rounded-[25px] bg-brand-rose text-white font-semibold disabled:opacity-50"
+        >
+          S&apos;inscrire
+        </motion.button>
+
+        <p className="text-center text-sm mt-4 text-brand-ink/60">
+          Déjà membre ?{' '}
+          <Link to="/login" className="text-brand-rose font-semibold">
+            Se connecter
+          </Link>
+        </p>
+      </motion.div>
+    </div>
+  );
+}
