@@ -1,0 +1,67 @@
+================================================================================
+  Maven dans IntelliJ IDEA — projet sweet_moment_test
+================================================================================
+
+Maven n'a pas besoin d'être "installé à la main" : IntelliJ embarque souvent Maven.
+Il faut surtout ACTIVER le plugin et IMPORTER le pom.xml.
+
+--------------------------------------------------------------------------------
+1) Activer le plugin Maven
+--------------------------------------------------------------------------------
+   File → Settings (Ctrl+Alt+S) → Plugins
+   Cherchez "Maven" → cochez "Maven" / "Maven Integration" → Apply → OK
+   (Redémarrez l'IDE si demandé.)
+
+--------------------------------------------------------------------------------
+2) Utiliser le Maven fourni par IntelliJ
+--------------------------------------------------------------------------------
+   File → Settings → Build, Execution, Deployment → Build Tools → Maven
+
+   Maven home path : choisissez "Bundled (Maven 3)" ou un chemin du type :
+     ...\JetBrains\IntelliJ IDEA...\plugins\maven\lib\maven3
+
+   User settings file : laissez par défaut si vous n'avez pas de settings.xml perso.
+
+--------------------------------------------------------------------------------
+3) Importer ce dossier comme projet Maven (indispensable)
+--------------------------------------------------------------------------------
+   Dans le projet ouvert :
+   - Clic DROIT sur le fichier pom.xml (à la racine de sweet_moment_test)
+   - Choisir : "Add as Maven Project"   OU   "Load as Maven project"
+     (libellé selon la version d'IntelliJ)
+
+   OU menu :
+   - View → Tool Windows → Maven
+   Si la fenêtre Maven est vide : clic sur l'icône "Reload All Maven Projects"
+     (flèches circulaires) dans la barre de la fenêtre Maven.
+
+--------------------------------------------------------------------------------
+4) Fenêtre Maven invisible ?
+--------------------------------------------------------------------------------
+   View → Tool Windows → Maven
+   Ou : aidez-vous du menu Help → Find Action (Ctrl+Shift+A) → tapez "Maven".
+
+--------------------------------------------------------------------------------
+5) Onglet pom.xml en rouge / erreurs
+--------------------------------------------------------------------------------
+   File → Invalidate Caches → Invalidate and Restart
+
+   Vérifiez aussi :
+   File → Project Structure (Ctrl+Alt+Shift+S) → Project → SDK = JDK 17
+
+--------------------------------------------------------------------------------
+6) Ouvrir le bon dossier
+--------------------------------------------------------------------------------
+   File → Open → sélectionnez le dossier qui CONTIENT pom.xml :
+     ...\liaison_suite_moments\sweet_moment_test
+
+--------------------------------------------------------------------------------
+7) Sans IntelliJ : Maven installé sur Windows (optionnel)
+--------------------------------------------------------------------------------
+   Téléchargez Apache Maven (binary zip), décompressez, puis ajoutez au PATH :
+     ...\apache-maven-3.x.x\bin
+   Nouvelle fenêtre CMD : mvn -version
+
+   Ensuite vous pouvez lancer : RUN_BACKEND.bat dans ce dossier.
+
+================================================================================

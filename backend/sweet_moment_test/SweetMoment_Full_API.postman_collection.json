@@ -1,0 +1,354 @@
+{
+  "info": {
+    "_postman_id": "9d38fefb-f3f6-4d1a-b2f1-6e12f0b11f10",
+    "name": "SweetMoment Full API (H2)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Collection complete pour tester tous les endpoints du cahier des charges."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "email", "value": "client@sweetmoment.ma" },
+    { "key": "password", "value": "password123" },
+    { "key": "token", "value": "" },
+    { "key": "userId", "value": "1" },
+    { "key": "productId", "value": "1" },
+    { "key": "cartItemId", "value": "" },
+    { "key": "orderId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "0 - Health",
+      "item": [
+        {
+          "name": "GET Products (quick check)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/products?page=1&pageSize=8"
+          }
+        }
+      ]
+    },
+    {
+      "name": "1 - Customer",
+      "item": [
+        {
+          "name": "POST Register (new account)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Hiba\",\n  \"lastName\": \"Radid\",\n  \"email\": \"hiba+test@sm.local\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        },
+        {
+          "name": "POST Login (seed account)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "const res = pm.response.json();",
+                  "if (res.token) pm.collectionVariables.set('token', res.token);",
+                  "if (res.user && res.user.id) pm.collectionVariables.set('userId', String(res.user.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "GET User Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/{{userId}}"
+          }
+        },
+        {
+          "name": "PUT Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Client\",\n  \"lastName\": \"Demo\",\n  \"city\": \"Casablanca\",\n  \"phone\": \"0600000000\"\n}"
+            },
+            "url": "{{baseUrl}}/api/users/{{userId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 - Catalog",
+      "item": [
+        {
+          "name": "GET Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/categories"
+          }
+        },
+        {
+          "name": "GET Products (default)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/products"
+          }
+        },
+        {
+          "name": "GET Products (search/filter/sort/page)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/products?search=chocolat&category=Chocolats&sort=price_desc&page=1&pageSize=8"
+          }
+        },
+        {
+          "name": "GET Product By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/products/{{productId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 - Inventory",
+      "item": [
+        {
+          "name": "GET Stock By Product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/inventory/{{productId}}"
+          }
+        },
+        {
+          "name": "PUT Update Stock",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": {{productId}},\n  \"quantity\": 30\n}"
+            },
+            "url": "{{baseUrl}}/api/inventory"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4 - Shopping Cart",
+      "item": [
+        {
+          "name": "GET Cart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/cart/{{userId}}"
+          }
+        },
+        {
+          "name": "POST Add Item To Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "const res = pm.response.json();",
+                  "if (res.items && res.items.length > 0) {",
+                  "  pm.collectionVariables.set('cartItemId', String(res.items[0].id));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{userId}},\n  \"productId\": {{productId}},\n  \"quantity\": 2\n}"
+            },
+            "url": "{{baseUrl}}/api/cart/add"
+          }
+        },
+        {
+          "name": "PUT Update Cart Item Quantity",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemId\": {{cartItemId}},\n  \"quantity\": 3,\n  \"userId\": {{userId}}\n}"
+            },
+            "url": "{{baseUrl}}/api/cart/update"
+          }
+        },
+        {
+          "name": "DELETE Remove Cart Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/cart/remove/{{cartItemId}}"
+          }
+        },
+        {
+          "name": "DELETE Clear Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/cart/clear/{{userId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5 - Billing Orders",
+      "item": [
+        {
+          "name": "PREP - Add Item For Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{userId}},\n  \"productId\": {{productId}},\n  \"quantity\": 1\n}"
+            },
+            "url": "{{baseUrl}}/api/cart/add"
+          }
+        },
+        {
+          "name": "POST Create Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('orderId', String(res.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{userId}}\n}"
+            },
+            "url": "{{baseUrl}}/api/orders"
+          }
+        },
+        {
+          "name": "GET Orders By User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/orders/user/{{userId}}"
+          }
+        },
+        {
+          "name": "GET Order By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/orders/{{orderId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6 - Reviews",
+      "item": [
+        {
+          "name": "POST Create Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": {{productId}},\n  \"userId\": {{userId}},\n  \"authorName\": \"Client Demo\",\n  \"rating\": 5,\n  \"comment\": \"Excellent produit, très bon goût et livraison rapide.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/reviews"
+          }
+        },
+        {
+          "name": "GET Reviews By Product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/reviews/product/{{productId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7 - Error Scenarios (for demo)",
+      "item": [
+        {
+          "name": "GET Product Not Found (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/products/999999"
+          }
+        },
+        {
+          "name": "POST Bad Review (400 validation)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": {{productId}},\n  \"userId\": {{userId}},\n  \"authorName\": \"X\",\n  \"rating\": 7,\n  \"comment\": \"court\"\n}"
+            },
+            "url": "{{baseUrl}}/api/reviews"
+          }
+        }
+      ]
+    }
+  ]
+}
